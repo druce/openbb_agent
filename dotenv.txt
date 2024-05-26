@@ -1,0 +1,27 @@
+# populate and rename as .env to load with dotenv.load_dotenv()
+OPENAI_API_KEY=''
+
+OPENBB_USER=''
+OPENBB_PW=''
+
+# SEC Edgar requests this info to manage API limits
+SEC_USER=''
+SEC_FIRM=''
+
+ALPHAVANTAGE_API_KEY=''
+SEC_API_KEY=''
+SEC_API_ENDPOINT='https://api.sec-api.io'
+POLYGON_API_KEY=''
+FRED_API_KEY=''
+EODHD_API_KEY=''
+FINNHUB_API_KEY=''
+FMP_API_KEY=''
+NEWSAPI_API_KEY=''
+NEWSFILTER_API_KEY=''
+QUANDL_API_KEY=''
+STOCKSERA_API_KEY=''
+TIINGO_API_KEY=''
+BIZTOC_API_KEY=''
+
+
+

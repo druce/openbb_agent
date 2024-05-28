@@ -5,6 +5,7 @@ OPENBB_USER=''
 OPENBB_PW=''
 
 # SEC Edgar requests this info to manage API limits
+# registration not needed but populate a legit email address and firm
 SEC_USER=''
 SEC_FIRM=''
 

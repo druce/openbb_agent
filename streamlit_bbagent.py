@@ -1,9 +1,11 @@
 # pip install langchain langchain-openai streamlit
 # streamlit run streamlit_qa.py
+from bb_tools import tool_dict, enriched_system_prompt
 import dotenv
-from BB_agent_tool import bb_agent_system_prompt
 import streamlit as st
 
+# import langchain
+# langchain.debug = True
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import (ChatPromptTemplate,
                                     PromptTemplate,
@@ -13,7 +15,6 @@ from langchain_core.prompts import (ChatPromptTemplate,
 from langchain.agents import create_tool_calling_agent, AgentExecutor
 from langchain_community.chat_message_histories import ChatMessageHistory
 
-from bb_tools import tool_dict
 tool_list = list(tool_dict.values())
 
 # import secrets from .env
@@ -57,7 +58,7 @@ def get_memory():
 def get_chain():
     global llm
     prompt_template = ChatPromptTemplate.from_messages(
-        [SystemMessagePromptTemplate(prompt=PromptTemplate(input_variables=[], template=bb_agent_system_prompt,)),
+        [SystemMessagePromptTemplate(prompt=PromptTemplate(input_variables=[], template=enriched_system_prompt,)),
          MessagesPlaceholder(variable_name='chat_history', optional=True),
          HumanMessagePromptTemplate(prompt=PromptTemplate(
              input_variables=['input'], template='{input}')),

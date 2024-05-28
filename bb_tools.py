@@ -12,6 +12,9 @@ from pydantic.v1 import BaseModel, Field  # <-- Uses v1 namespace
 import sec_parser as sp
 from sec_downloader import Downloader
 
+import ainb_const
+
+enriched_system_prompt = ainb_const.bb_agent_system_prompt
 CONFIG_YAML = "obbtools.yaml"
 tool_dict = {}
 
@@ -122,20 +125,66 @@ def obb_function_factory(fn_metadata):
     return tool_fn
 
 
+def create_example_str(tool_func_name, example_parameter_values, tool_func):
+    """
+    Create the example code for the tool that can be included in the tool_desc.
+    """
+    examples = []
+    for example in example_parameter_values:
+        parray = []
+        for k, v in example.items():
+            # get type, always string for now
+            ptype = "string"
+            if ptype == "string":
+                parray.append(f'{k}="{v}"')
+            else:
+                parray.append(f'{k}={v}')
+        pstr = ", ".join(parray)
+
+        # run the example
+        return_value = tool_func(**example)
+        if type(return_value) is list:  # only use 3 values if it's a long list
+            return_value = str(return_value[:3])
+        return_value = str(return_value)
+        examples.append(f"{tool_func_name}({pstr}) -> {return_value}")
+        return "; ".join(examples)
+
+
 # Load obb tool defs from YAML file
 with open(CONFIG_YAML, 'r') as file:
     fn_yaml_list = yaml.safe_load(file)
 
+
 # create tools from metadata
+tool_descs = []
 for fn_metadata in fn_yaml_list:
     tool_name = fn_metadata["name"]
     tool_desc = fn_metadata["description"]
     tool_schema_name = fn_metadata["args_schema"]
     print(f"Creating tool {tool_name}")
+    tool_func = obb_function_factory(fn_metadata)
+    example_str = create_example_str(
+        tool_name, fn_metadata["example_parameter_values"], tool_func)
+    tool_desc += " Usage: " + example_str
+    max_str_len = 1000
+    tool_desc = tool_desc[:max_str_len-1] + \
+        "…" if len(tool_desc) > max_str_len else tool_desc
+
     # instantiate tool and add to tool_dict
     tool_dict[tool_name] = StructuredTool.from_function(
-        func=obb_function_factory(fn_metadata),
+        func=tool_func,
         name=tool_name,
         description=tool_desc,
         args_schema=schema_dict[tool_schema_name]
     )
+
+    tool_descs.append(f"{tool_name} : {tool_desc}")
+
+tool_desc_str = "\n~~\n".join(tool_descs)
+enriched_system_prompt += f"""
+Available tools, with name, description, and calling example, delimited by ~~:
+{tool_desc_str}
+
+"""
+enriched_system_prompt = enriched_system_prompt.replace("{", "{{")
+enriched_system_prompt = enriched_system_prompt.replace("}", "}}")

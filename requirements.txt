@@ -1,6 +1,6 @@
 ipykernel
 python-dotenv
-openbb
+openbb[all]
 # openbb-charting
 # selenium
 openai
@@ -9,6 +9,7 @@ pydantic # ==1.10
 langchain >= 0.2
 langchain-openai
 langchain-community
+magentic
 wikipedia
 # edgartools
 sec-api
